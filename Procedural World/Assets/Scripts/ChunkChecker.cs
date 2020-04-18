@@ -12,7 +12,5 @@ public class ChunkChecker : MonoBehaviour
     void Start()
     {
         LoadChunk loadChunk = new LoadChunk(createWorld.worldSize, createWorld.chunkScale, createWorld.chunkResolution, chunkOrigin, createWorld.origins);
-        LoadChunk loadChunk2 = new LoadChunk(createWorld.worldSize, createWorld.chunkScale, createWorld.chunkResolution, vec2, createWorld.origins);
-        LoadChunk loadChunk3 = new LoadChunk(createWorld.worldSize, createWorld.chunkScale, createWorld.chunkResolution, vec3, createWorld.origins);
     }
 }

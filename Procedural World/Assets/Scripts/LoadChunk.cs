@@ -5,22 +5,23 @@ using UnityEngine;
 public class LoadChunk
 {
     Mesh mesh = new Mesh();
-    public int chunkResolution;
-    public float chunkSize;
+    int chunkResolution;
+    float chunkSize;
 
     //Vector2 chunkOrigin = new Vector2();
     Vector3[] vertices;
     public LoadChunk(int worldSize, float chunkScale, int chunkResolution, Vector2 origin, Vector2[,] origins)
     {
-        int chunks = Mathf.RoundToInt(worldSize * (chunkScale / 100.0f));
+        int chunks = Mathf.RoundToInt(worldSize * chunkScale);
 
         if (chunks == 0)
         {
-            this.chunkSize = 1;
+            chunks = 1;
+            this.chunkSize = (float)worldSize / (float)chunks;
         }
         else
         {
-            this.chunkSize = worldSize / chunks;
+            this.chunkSize = (float)worldSize / (float)chunks;
         }
 
         this.chunkResolution = chunkResolution;
@@ -29,41 +30,39 @@ public class LoadChunk
     }
     private GameObject generateChunk(Vector2 origin, Vector2[,] origins)
     {
-        float spread = chunkSize / chunkResolution;
+        float chunkSpread = chunkSize / chunkResolution;
 
-        vertices = new Vector3[chunkResolution * chunkResolution];
-
-        Debug.Log(origins[0,0]);
+        vertices = new Vector3[(chunkResolution+1) * (chunkResolution+1)];
 
         int count = 0;
-        for(int i = 0; i < chunkResolution; i++)
+        for(int i = 0; i < chunkResolution+1; i++)
         {
-            for (int j = 0; j < chunkResolution; j++)
+            for (int j = 0; j < chunkResolution+1; j++)
             {
                 float x, y, z;
-                x = j * spread + origins[(int)origin.x, (int)origin.y].x;
+                x = j * chunkSpread + origins[(int)origin.x, (int)origin.y].x;
                 y = 0;
-                z = i * spread + origins[(int)origin.x, (int)origin.y].x;
+                z = origins[(int)origin.x, (int)origin.y].y - i* chunkSpread;
 
                 vertices[count] = new Vector3(x, y, z);
                 count++;
             }
         }
 
-        int[] tris = new int[6 * (chunkResolution - 1) * (chunkResolution - 1)];
+        int[] tris = new int[6 * (chunkResolution) * (chunkResolution)];
 
         count = 0;
-        for(int i = 0; i < chunkResolution-1; i++)
+        for(int i = 0; i < chunkResolution; i++)
         {
-            for (int j = 0; j < chunkResolution-1; j++)
+            for (int j = 0; j < chunkResolution; j++)
             {
-                tris[count] = i * chunkResolution + chunkResolution + j + 1;
-                tris[count + 1] = i * chunkResolution + j;
-                tris[count + 2] = i * chunkResolution + chunkResolution + j;
+                tris[count] = i * (chunkResolution+1) + (chunkResolution + 1) + j;
+                tris[count + 1] = i * (chunkResolution + 1) + j;
+                tris[count + 2] = i * (chunkResolution + 1) + (chunkResolution + 1) + j + 1;
 
-                tris[count + 3] = i * chunkResolution + j;
-                tris[count + 4] = i * chunkResolution + chunkResolution + j + 1;
-                tris[count + 5] = i * chunkResolution + j + 1;
+                tris[count + 3] = i * (chunkResolution + 1) + j + 1;
+                tris[count + 4] = i * (chunkResolution + 1) + (chunkResolution + 1) + j + 1;
+                tris[count + 5] = i * (chunkResolution + 1) + j;
 
                 count += 6;
             }
