@@ -13,7 +13,8 @@ public class CreateWorld : MonoBehaviour
     [Range(1, 100)]
     public int chunkResolution = 10;
 
-    Vector2[,] plotOrigins;
+    [HideInInspector]
+    public Vector2[,] origins;
 
     // Start is called before the first frame update
     private void OnValidate()
@@ -24,17 +25,17 @@ public class CreateWorld : MonoBehaviour
     private void buildGrid()
     {
         GridGenerator gridGenerator = new GridGenerator(worldSize, chunkScale);
-        plotOrigins = gridGenerator.chunkOrigins;
+        origins = gridGenerator.chunkOrigins;
     }
     void OnDrawGizmos()
     {
-        for (int i = 0; i < plotOrigins.GetLength(0); i++)
+        for (int i = 0; i < origins.GetLength(0); i++)
         {
-            for (int j = 0; j < plotOrigins.GetLength(1); j++)
+            for (int j = 0; j < origins.GetLength(1); j++)
             {
                 float x, y, z;
-                x = plotOrigins[i,j].x;
-                z = plotOrigins[i,j].y;
+                x = origins[i,j].x;
+                z = origins[i,j].y;
                 y = 0;
 
                 Vector3 origin = new Vector3(x, y, z);

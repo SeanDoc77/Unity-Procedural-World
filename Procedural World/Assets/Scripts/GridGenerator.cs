@@ -20,7 +20,7 @@ public class GridGenerator
     private void generateChunkGrid()
     {
         int chunks = Mathf.RoundToInt(worldSize * (chunkScale/100.0f));
-
+        Debug.Log(chunks);
         float chunkSize;
 
         chunkOrigins = new Vector2[chunks,chunks];
