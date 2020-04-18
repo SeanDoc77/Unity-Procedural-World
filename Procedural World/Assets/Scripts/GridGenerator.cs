@@ -7,9 +7,9 @@ public class GridGenerator
     public Vector2[,] chunkOrigins;
 
     int worldSize;
-    int chunkScale;
+    float chunkScale;
 
-    public GridGenerator(int worldSize, int chunkScale)
+    public GridGenerator(int worldSize, float chunkScale)
     {
         this.worldSize = worldSize;
         this.chunkScale = chunkScale;
@@ -19,23 +19,23 @@ public class GridGenerator
 
     private void generateChunkGrid()
     {
-        int chunks = Mathf.RoundToInt(worldSize * (chunkScale/100.0f));
-        Debug.Log(chunks);
+        int chunks = Mathf.RoundToInt(worldSize * chunkScale);
         float chunkSize;
-
-        chunkOrigins = new Vector2[chunks,chunks];
 
         if (chunks == 0)
         {
-            chunkSize = 1;
+            chunks = 1;
+            chunkSize = (float)worldSize / (float)chunks;
         }
         else
         {
-            chunkSize = worldSize / chunks;
+            chunkSize = (float)worldSize / (float)chunks;
         }
 
-        float xStart = -worldSize / 2 + chunkSize/2;
-        float zStart = worldSize / 2 - chunkSize / 2; ;
+        chunkOrigins = new Vector2[chunks, chunks];
+
+        float xStart = -worldSize/2;// / 2 + chunkSize/2;
+        float zStart = worldSize/2;// / 2 - chunkSize / 2; ;
 
         int count = 0;
 

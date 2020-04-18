@@ -7,8 +7,8 @@ public class CreateWorld : MonoBehaviour
     [Range(1, 100)]
     public int worldSize = 10;
 
-    [Range(1, 100)]
-    public int chunkScale = 10;
+    [Range(0.0001f, 1.0f)]
+    public float chunkScale = 10;
 
     [Range(1, 100)]
     public int chunkResolution = 10;
