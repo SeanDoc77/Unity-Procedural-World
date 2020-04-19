@@ -72,9 +72,16 @@ public class LoadChunk
         mesh.RecalculateNormals();
 
         GameObject chunk = new GameObject();
+        chunk.name = "" + origin.x + "," + origin.y;
+        chunk.tag = "Chunk";
         chunk.transform.parent = GameObject.Find("World").transform;
         chunk.AddComponent<MeshFilter>().mesh = mesh;
         chunk.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+        chunk.AddComponent<MeshCollider>();
+        chunk.AddComponent<BoxCollider>();
+        BoxCollider col = chunk.GetComponent<BoxCollider>();
+        col.size = new Vector3(col.size.x, 10, col.size.z);
+        col.isTrigger = true;
         return chunk;
     }
 }

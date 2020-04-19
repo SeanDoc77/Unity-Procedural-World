@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CreateWorld : MonoBehaviour
 {
-    [Range(1, 100)]
+    [Range(1, 1000)]
     public int worldSize = 10;
 
     [Range(0.0001f, 1.0f)]
