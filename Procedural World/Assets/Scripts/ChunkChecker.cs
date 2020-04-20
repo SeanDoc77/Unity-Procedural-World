@@ -7,23 +7,25 @@ public class ChunkChecker : MonoBehaviour
     [Range (1,20)]
     public int chunkRenderDistance;
 
+    [Range(0, 1)]
+    public float renderSpeedScale = 1;
+
     Vector2 vec2 = new Vector2(0,1);
     Vector2 vec3 = new Vector2(1,1);
-    public CreateWorld createWorld;
 
     void Start()
     {
-        int chunks = Mathf.RoundToInt(createWorld.worldSize * createWorld.chunkScale);
+        int chunks = Mathf.RoundToInt(WorldData.worldSize * WorldData.chunkScale);
         Vector2 spawnOrigin = new Vector2(chunks / 2, chunks / 2);
 
-        LoadChunk loadChunk = new LoadChunk(createWorld.worldSize, createWorld.chunkScale, createWorld.chunkResolution, spawnOrigin, createWorld.origins);
+
+        LoadChunk loadChunk = new LoadChunk(WorldData.worldSize, WorldData.chunkScale, WorldData.chunkResolution, spawnOrigin, WorldData.origins);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Vector2 chunkCoordinates;
         chunkCoordinates = chunkNameToVector2(other.name);
-        Debug.Log("Current Coords: " + chunkCoordinates);
 
         generateChunkNeighbors(chunkCoordinates);
     }
@@ -34,22 +36,17 @@ public class ChunkChecker : MonoBehaviour
 
         List<string> renderedChunks = getRenderedChunks();
 
-        for (int i = 0; i < chunkNeighbors.Length; i++)
+        StartCoroutine(GenerateNeighboringChunks(chunkNeighbors, renderedChunks));
+
+        string currentChunk = chunkCoordinates.x + "," + chunkCoordinates.y;
+        foreach (string chunk in renderedChunks)
         {
-            string checkString = chunkNeighbors[i].x + "," + chunkNeighbors[i].y;
-            if (renderedChunks.Contains(checkString))
+            if(chunk != currentChunk)
             {
-                Debug.Log("Chunk already exists");
-            }
-            else
-            {
-                if (withinBounds(chunkNeighbors[i]))
+                if (!checkChunkNeighbors(chunk, chunkNeighbors))
                 {
-                    LoadChunk loadChunk = new LoadChunk(createWorld.worldSize, createWorld.chunkScale, createWorld.chunkResolution, chunkNeighbors[i], createWorld.origins);
-                }
-                else
-                {
-                    Debug.Log("Coordinates not within bounds");
+                    Debug.Log("Destroy");
+                    Destroy(GameObject.Find(chunk));
                 }
             }
         }
@@ -86,14 +83,9 @@ public class ChunkChecker : MonoBehaviour
                 int x = (int)currentChunkCoordinates.x - chunkRenderDistance + j;
                 int y = (int)currentChunkCoordinates.y + chunkRenderDistance - i;
 
-                if(x == (int)currentChunkCoordinates.x && y == (int)currentChunkCoordinates.y)
-                {
-                    Debug.Log("Current Chunk");
-                }
-                else
+                if(!(x == (int)currentChunkCoordinates.x && y == (int)currentChunkCoordinates.y))
                 {
                     chunkNeighbors[count] = new Vector2(x, y);
-                    Debug.Log(chunkNeighbors[count]);
                     count++;
                 }
             }
@@ -103,7 +95,7 @@ public class ChunkChecker : MonoBehaviour
 
     private bool withinBounds(Vector2 chunkCoordinates)
     {
-        int chunks = Mathf.RoundToInt(createWorld.worldSize * createWorld.chunkScale);
+        int chunks = Mathf.RoundToInt(WorldData.worldSize * WorldData.chunkScale);
 
         if (chunkCoordinates.x > chunks - 1 || chunkCoordinates.y > chunks - 1 || chunkCoordinates.x < 0 || chunkCoordinates.y < 0)
         {
@@ -112,6 +104,40 @@ public class ChunkChecker : MonoBehaviour
         else
         {
             return true;
+        }
+    }
+
+    private bool checkChunkNeighbors(string chunk, Vector2[] chunkNeighbors)
+    {
+        for(int i = 0; i < chunkNeighbors.Length; i++)
+        {
+            string checkString = chunkNeighbors[i].x + "," + chunkNeighbors[i].y;
+            if (checkString == chunk)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    IEnumerator GenerateNeighboringChunks(Vector2[] chunkNeighbors, List<string> renderedChunks)
+    {
+        //Generate the neighboring chunks
+        for (int i = 0; i < chunkNeighbors.Length; i++)
+        {
+            string checkString = chunkNeighbors[i].x + "," + chunkNeighbors[i].y;
+            if (!renderedChunks.Contains(checkString))
+            {
+                if (withinBounds(chunkNeighbors[i]))
+                {
+                    yield return new WaitForSeconds(1.0f - renderSpeedScale);
+                    LoadChunk loadChunk = new LoadChunk(WorldData.worldSize, WorldData.chunkScale, WorldData.chunkResolution, chunkNeighbors[i], WorldData.origins);
+                }
+                else
+                {
+                    Debug.Log("Coordinates not within bounds: " + chunkNeighbors[i]);
+                }
+            }
         }
     }
 }

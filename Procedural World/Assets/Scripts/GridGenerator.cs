@@ -32,10 +32,11 @@ public class GridGenerator
             chunkSize = (float)worldSize / (float)chunks;
         }
 
+        WorldData.chunkSize = chunkSize;
         chunkOrigins = new Vector2[chunks, chunks];
 
-        float xStart = -worldSize/2;// / 2 + chunkSize/2;
-        float zStart = worldSize/2;// / 2 - chunkSize / 2; ;
+        float xStart = 0;// / 2 + chunkSize/2;
+        float zStart = worldSize;// / 2 - chunkSize / 2; ;
 
         int count = 0;
 
