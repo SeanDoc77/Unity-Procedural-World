@@ -7,6 +7,8 @@ public class WorldPreview
     Mesh mesh;
     int chunkResolution;
     float chunkSize;
+    Vector2 origin;
+    Vector2[,] origins;
 
     //Vector2 chunkOrigin = new Vector2();
     Vector3[] vertices;
@@ -14,6 +16,8 @@ public class WorldPreview
     {
         this.chunkResolution = chunkResolution;
         this.mesh = mesh;
+        this.origin = origin;
+        this.origins = origins;
 
         int chunks = Mathf.RoundToInt(worldSize * chunkScale);
         if (chunks == 0)
@@ -25,10 +29,8 @@ public class WorldPreview
         {
             this.chunkSize = (float)worldSize / (float)chunks;
         }
-
-        generateChunk(origin, origins);
     }
-    public void generateChunk(Vector2 origin, Vector2[,] origins)
+    public void generateChunk()
     {
         float chunkSpread = WorldData.chunkSize / chunkResolution;
 
