@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#pragma warning disable 1234
+
 public class CreateWorld : MonoBehaviour
 {
     [Range(1, 100000)]
@@ -32,40 +34,43 @@ public class CreateWorld : MonoBehaviour
     {
         buildGrid();
 
-        int chunks = Mathf.RoundToInt(worldSize * chunkScale);
-        Vector2 spawnOrigin = new Vector2(chunks / 2, chunks / 2);
-
-        if (meshFilters == null || meshFilters.Length != previewChunkRenderDistance * previewChunkRenderDistance)
+        UnityEditor.EditorApplication.delayCall += () =>
         {
-            meshFilters = new MeshFilter[previewChunkRenderDistance * previewChunkRenderDistance];
-            GameObject[] previewChunks = GameObject.FindGameObjectsWithTag("Chunk Preview");
-            foreach(GameObject chunk in previewChunks)
+            int chunks = Mathf.RoundToInt(worldSize * chunkScale);
+            Vector2 spawnOrigin = new Vector2(chunks / 2, chunks / 2);
+
+            if (meshFilters == null || meshFilters.Length != previewChunkRenderDistance * previewChunkRenderDistance)
             {
-                UnityEditor.EditorApplication.delayCall += () =>
+                meshFilters = new MeshFilter[previewChunkRenderDistance * previewChunkRenderDistance];
+                GameObject[] previewChunks = GameObject.FindGameObjectsWithTag("Chunk Preview");
+                foreach (GameObject chunk in previewChunks)
                 {
+                    //UnityEditor.EditorApplication.delayCall += () =>
+                    //{
                     DestroyImmediate(chunk);
-                };
+                    //};
+                }
             }
-        }
 
-        previews = new WorldPreview[previewChunkRenderDistance * previewChunkRenderDistance];
+            previews = new WorldPreview[previewChunkRenderDistance * previewChunkRenderDistance];
 
-        for (int i = 0; i < previewChunkRenderDistance * previewChunkRenderDistance; i++)
-        {
-            if (meshFilters[i] == null)
+            for (int i = 0; i < previewChunkRenderDistance * previewChunkRenderDistance; i++)
             {
-                GameObject worldPreview = new GameObject();
-                worldPreview.transform.parent = gameObject.transform.GetChild(0);
-                worldPreview.tag = "Chunk Preview";
+                if (meshFilters[i] == null)
+                {
+                    GameObject worldPreview = new GameObject();
+                    worldPreview.transform.parent = gameObject.transform.GetChild(0);
+                    worldPreview.tag = "Chunk Preview";
 
-                worldPreview.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
-                meshFilters[i] = worldPreview.AddComponent<MeshFilter>();
-                meshFilters[i].sharedMesh = new Mesh();
+                    worldPreview.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+                    meshFilters[i] = worldPreview.AddComponent<MeshFilter>();
+                    meshFilters[i].sharedMesh = new Mesh();
+                }
+
+                previews[i] = new WorldPreview(meshFilters[i].sharedMesh, worldSize, chunkScale, chunkResolution, spawnOrigin, origins);
             }
-
-            previews[i] = new WorldPreview(meshFilters[i].sharedMesh, worldSize, chunkScale, chunkResolution, spawnOrigin, origins);
-        }
-        generateMeshes();
+            generateMeshes();
+        };
     }
 
     void generateMeshes()
