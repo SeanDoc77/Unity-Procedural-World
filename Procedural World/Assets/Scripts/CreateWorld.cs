@@ -15,7 +15,7 @@ public class CreateWorld : MonoBehaviour
     [Range(1, 255)]
     public int chunkResolution = 10;
 
-    [Range(1, 20)]
+    [Range(0, 20)]
     public int previewChunkRenderDistance = 3;
 
     private Vector2[,] origins;
@@ -39,22 +39,20 @@ public class CreateWorld : MonoBehaviour
             int chunks = Mathf.RoundToInt(worldSize * chunkScale);
             Vector2 spawnOrigin = new Vector2(chunks / 2, chunks / 2);
 
-            if (meshFilters == null || meshFilters.Length != previewChunkRenderDistance * previewChunkRenderDistance)
+            if (meshFilters == null || meshFilters.Length != (2 * previewChunkRenderDistance + 1) * (2 * previewChunkRenderDistance + 1))
             {
-                meshFilters = new MeshFilter[previewChunkRenderDistance * previewChunkRenderDistance];
+                meshFilters = new MeshFilter[(2 * previewChunkRenderDistance + 1) * (2 * previewChunkRenderDistance + 1)];
                 GameObject[] previewChunks = GameObject.FindGameObjectsWithTag("Chunk Preview");
                 foreach (GameObject chunk in previewChunks)
                 {
-                    //UnityEditor.EditorApplication.delayCall += () =>
-                    //{
                     DestroyImmediate(chunk);
-                    //};
                 }
             }
 
-            previews = new WorldPreview[previewChunkRenderDistance * previewChunkRenderDistance];
+            previews = new WorldPreview[(2 * previewChunkRenderDistance + 1) * (2 * previewChunkRenderDistance + 1)];
+            Vector2[] chunkNeighors = getChunkNeighbors(spawnOrigin);
 
-            for (int i = 0; i < previewChunkRenderDistance * previewChunkRenderDistance; i++)
+            for (int i = 0; i < (2 * previewChunkRenderDistance + 1) * (2 * previewChunkRenderDistance + 1); i++)
             {
                 if (meshFilters[i] == null)
                 {
@@ -66,8 +64,7 @@ public class CreateWorld : MonoBehaviour
                     meshFilters[i] = worldPreview.AddComponent<MeshFilter>();
                     meshFilters[i].sharedMesh = new Mesh();
                 }
-
-                previews[i] = new WorldPreview(meshFilters[i].sharedMesh, worldSize, chunkScale, chunkResolution, spawnOrigin, origins);
+                previews[i] = new WorldPreview(meshFilters[i].sharedMesh, worldSize, chunkScale, chunkResolution, chunkNeighors[i], origins);
             }
             generateMeshes();
         };
@@ -75,9 +72,22 @@ public class CreateWorld : MonoBehaviour
 
     void generateMeshes()
     {
+        bool warning = false;
         foreach(WorldPreview preview in previews)
         {
-            preview.generateChunk();
+            if (withinBounds(preview.origin))
+            {
+                preview.generateChunk();
+            }
+            else
+            {
+                warning = true;
+            }
+        }
+
+        if (warning)
+        {
+            Debug.LogWarning("You are attempting generate chunks outside of the grid boundaries");
         }
     }
     private void buildGrid()
@@ -101,6 +111,40 @@ public class CreateWorld : MonoBehaviour
                 Vector3 origin = new Vector3(x, y, z);
                 Gizmos.DrawSphere(origin, 0.1f*worldSize/chunks);
             }
+        }
+    }
+
+    private Vector2[] getChunkNeighbors(Vector2 currentChunkCoordinates)
+    {
+        Vector2[] chunkNeighbors = new Vector2[(2 * previewChunkRenderDistance + 1) * (2 * previewChunkRenderDistance + 1)];
+
+        int count = 0;
+        for (int i = 0; i < (2 * previewChunkRenderDistance + 1); i++)
+        {
+            for (int j = 0; j < (2 * previewChunkRenderDistance + 1); j++)
+            {
+                int x = (int)currentChunkCoordinates.x - previewChunkRenderDistance + j;
+                int y = (int)currentChunkCoordinates.y + previewChunkRenderDistance - i;
+
+                chunkNeighbors[count] = new Vector2(x, y);
+                count++;
+                
+            }
+        }
+        return chunkNeighbors;
+    }
+
+    private bool withinBounds(Vector2 chunkCoordinates)
+    {
+        int chunks = Mathf.RoundToInt(worldSize * chunkScale);
+
+        if (chunkCoordinates.x > chunks - 1 || chunkCoordinates.y > chunks - 1 || chunkCoordinates.x < 0 || chunkCoordinates.y < 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
         }
     }
 }

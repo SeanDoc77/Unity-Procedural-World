@@ -7,7 +7,7 @@ public class WorldPreview
     Mesh mesh;
     int chunkResolution;
     float chunkSize;
-    Vector2 origin;
+    public Vector2 origin;
     Vector2[,] origins;
 
     //Vector2 chunkOrigin = new Vector2();
