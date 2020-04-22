@@ -67,6 +67,16 @@ public class CreateWorld : MonoBehaviour
                 previews[i] = new WorldPreview(meshFilters[i].sharedMesh, worldSize, chunkScale, chunkResolution, chunkNeighors[i], origins);
             }
             generateMeshes();
+
+            //Delete chunks without meshes
+            //GameObject[] chunksPreviews = GameObject.FindGameObjectsWithTag("Chunk Preview");
+            //foreach (GameObject chunk in chunksPreviews)
+            //{
+            //    if (!chunk.GetComponent<MeshFilter>().mesh)
+            //    {
+            //        DestroyImmediate(chunk);
+            //    }
+            //}
         };
     }
 
